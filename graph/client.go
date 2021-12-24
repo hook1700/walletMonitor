@@ -73,7 +73,7 @@ func main() {
 	client := graphql.NewClient("https://wb.xfack.com/graphql", nil)
 	//hash := "0x14655169c60948b969b1a19ec8113b134a91280fb58c0f35c083f85821032eb1"
 	//type Long uint64
-	var number int64
+	var number uint
 	number = 13530647
 	variables := map[string]interface{}{
 		"number": number,

@@ -115,7 +115,7 @@ func GetDataByGraphQL(number int,db string)  {
 		return
 	}
 	//插入ES
-	err1 := elasticsearch.CreatBlockData(data,db)
+	err1 := elasticsearch.CreatBlockData(data.Data,db)
 	if err1 != nil {
 		fmt.Println(err1)
 		return 
