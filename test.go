@@ -12,8 +12,9 @@ import (
 )
 
 func main() {
-
 	elasticsearch.InitES()
-
-	logic.GetDataByGraphQL(13530647)
+	for i :=13530647;i > 13530637;i--{
+		//db 为ES的db
+		logic.GetDataByGraphQL(i,"wallet")
+	}
 }

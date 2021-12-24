@@ -96,7 +96,7 @@ func MonitorAddressAndContract(contractAddress string,address string, apikey str
 }
 
 // GetDataByGraphQL 通过js访问前端服务https://wb.xfack.com/graphql
-func GetDataByGraphQL(number int)  {
+func GetDataByGraphQL(number int,db string)  {
 	//逻辑
 	url := "https://wb.xfack.com/graphql"
 	jsonData := fmt.Sprintf("{\"query\":\"{\\n  block(number: %d) {\\n    number\\n    hash\\n    parent {\\n      number\\n      transactionCount\\n    }\\n    transactionsRoot\\n    transactionCount\\n    miner {\\n      address\\n      balance\\n      transactionCount\\n      code\\n    }\\n    timestamp\\n    transactions {\\n      hash\\n      from {\\n        address\\n        transactionCount\\n      }\\n      to {\\n        address\\n        transactionCount\\n      }\\n      value\\n      status\\n      createdContract {\\n        address\\n      }\\n      logs {\\n        account {\\n          address\\n        }\\n        topics\\n        data\\n      }\\n    }\\n  }\\n}\\n\",\"variables\":null}",number)
@@ -115,11 +115,12 @@ func GetDataByGraphQL(number int)  {
 		return
 	}
 	//插入ES
-	err1 := elasticsearch.CreatBlockData(data)
+	err1 := elasticsearch.CreatBlockData(data,db)
 	if err1 != nil {
 		fmt.Println(err1)
 		return 
 	}
+	fmt.Println("插入js成功")
 
 	//client, err := elastic.NewClient(elastic.SetURL("http://10.10.10.8:9200"))
 	//if err != nil {
@@ -140,6 +141,7 @@ func GetDataByGraphQL(number int)  {
 
 }
 
+//Do 封装https 请求
 func Do(method string, url string, payload io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, payload)
 	if err != nil {
