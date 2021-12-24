@@ -7,11 +7,16 @@
 package logic
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"redisData/dao/elasticsearch"
+	"redisData/model"
 	"redisData/pkg/logger"
+	"strings"
 )
 
 //GetTxListByAddress 通过合约或者钱包地址，返回交易列表
@@ -88,4 +93,61 @@ func MonitorAddressAndContract(contractAddress string,address string, apikey str
 		return nil
 	}
 	return body
+}
+
+// GetDataByGraphQL 通过js访问前端服务https://wb.xfack.com/graphql
+func GetDataByGraphQL(number int)  {
+	//逻辑
+	url := "https://wb.xfack.com/graphql"
+	jsonData := fmt.Sprintf("{\"query\":\"{\\n  block(number: %d) {\\n    number\\n    hash\\n    parent {\\n      number\\n      transactionCount\\n    }\\n    transactionsRoot\\n    transactionCount\\n    miner {\\n      address\\n      balance\\n      transactionCount\\n      code\\n    }\\n    timestamp\\n    transactions {\\n      hash\\n      from {\\n        address\\n        transactionCount\\n      }\\n      to {\\n        address\\n        transactionCount\\n      }\\n      value\\n      status\\n      createdContract {\\n        address\\n      }\\n      logs {\\n        account {\\n          address\\n        }\\n        topics\\n        data\\n      }\\n    }\\n  }\\n}\\n\",\"variables\":null}",number)
+	payload := strings.NewReader(jsonData)
+	resp, err := Do("POST",url,payload)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+	body,_:=io.ReadAll(resp.Body)
+	//反序列化
+	var data model.RespGraphData
+	err3 := json.Unmarshal(body, &data)
+	if err3 != nil {
+		fmt.Println(err3)
+		return
+	}
+	//插入ES
+	err1 := elasticsearch.CreatBlockData(data)
+	if err1 != nil {
+		fmt.Println(err1)
+		return 
+	}
+
+	//client, err := elastic.NewClient(elastic.SetURL("http://10.10.10.8:9200"))
+	//if err != nil {
+	//	// Handle error
+	//	panic(err)
+	//}
+	//
+	//fmt.Println("connect to es success")
+	//put1, err := client.Index().
+	//	Index("walletMonitor").
+	//	BodyJson(data.Data).
+	//	Do(context.Background())
+	//if err != nil {
+	//	// Handle error
+	//	panic(err)
+	//}
+	//fmt.Println(put1.Id,put1.Index,put1.Type)
+
+}
+
+func Do(method string, url string, payload io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(method, url, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the auth for the request.
+	req.SetBasicAuth("admin", "Admin@123")
+
+	return http.DefaultClient.Do(req)
 }

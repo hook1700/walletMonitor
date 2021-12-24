@@ -17,7 +17,6 @@ var DB *gorm.DB
 // ConnectDB 初始化模型
 func ConnectDB() *gorm.DB {
 	var err error
-
 	// 初始化 MySQL 连接信息
 	var (
 		host     = viper.GetString("mysql.host")

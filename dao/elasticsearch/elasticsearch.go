@@ -6,46 +6,52 @@
 
 package elasticsearch
 
-
 import (
 	"context"
+	"fmt"
 	"github.com/olivere/elastic/v7"
-	"github.com/spf13/viper"
-	"redisData/pkg/logger"
 )
-var Client *elastic.Client
+var client *elastic.Client
 //InitES ES初始化
-func init()  {
-	host := viper.GetString("elasticsearch.host")
+func InitES()  {
+	//host := viper.GetString("elasticsearch.host")
 	//这个地方有个小坑 不加上elastic.SetSniff(false) 会连接不上
-	Client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(host))
+	//Client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(host))
+	var err error
+	client,err  = elastic.NewClient(elastic.SetURL("http://10.10.10.8:9200"))
 	if err != nil {
-		logger.Error(err)
+		fmt.Println(111,err)
 		return
 	}
-	_,_,err = Client.Ping(host).Do(context.Background())
+	_,_,err = client.Ping("http://10.10.10.8:9200").Do(context.Background())
 	if err != nil {
-		logger.Error(err)
+		fmt.Println(222,err)
 		return
 	}
-	_,err = Client.ElasticsearchVersion(host)
+	_,err = client.ElasticsearchVersion("http://10.10.10.8:9200")
 	if err != nil {
-		logger.Error(err)
+		fmt.Println(333,err)
 		return
 	}
 	return
 }
 
+func CreatBlockData (data interface{}) error{
 
-func CreatBlockData (i interface{}) error{
-	_,err := Client.Index().
-		Index("walletMonitor").  //数据库
-		BodyJson(i).
-		Do(context.Background())
+	_,err := client.Index().
+		Index("wallet"). //数据库
+		BodyJson(data).
+ 		Do(context.Background())
 	if err != nil{
-		logger.Error(err)
+		fmt.Println(err)
 		return err
 	}
 	return nil
 }
+
+func GetBlockData()  {
+	
+}
+
+
 

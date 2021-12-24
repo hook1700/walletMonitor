@@ -58,3 +58,47 @@ type RespMonitorList struct {
 		Confirmations     string `json:"confirmations"`
 	} `json:"result"`
 }
+
+//RespGraphData 接受GraphServer返回的数据
+type RespGraphData struct {
+	Data struct {
+		Block struct {
+			Number int    `json:"number"`
+			Hash   string `json:"hash"`
+			Parent struct {
+				Number           int `json:"number"`
+				TransactionCount int `json:"transactionCount"`
+			} `json:"parent"`
+			TransactionsRoot string `json:"transactionsRoot"`
+			TransactionCount int    `json:"transactionCount"`
+			Miner            struct {
+				Address          string `json:"address"`
+				Balance          string `json:"balance"`
+				TransactionCount string `json:"transactionCount"`
+				Code             string `json:"code"`
+			} `json:"miner"`
+			Timestamp    string `json:"timestamp"`
+			Transactions []struct {
+				Hash string `json:"hash"`
+				From struct {
+					Address          string `json:"address"`
+					TransactionCount string `json:"transactionCount"`
+				} `json:"from"`
+				To struct {
+					Address          string `json:"address"`
+					TransactionCount string `json:"transactionCount"`
+				} `json:"to"`
+				Value           string      `json:"value"`
+				Status          int         `json:"status"`
+				CreatedContract interface{} `json:"createdContract"`
+				Logs            []struct {
+					Account struct {
+						Address string `json:"address"`
+					} `json:"account"`
+					Topics []string `json:"topics"`
+					Data   string   `json:"data"`
+				} `json:"logs"`
+			} `json:"transactions"`
+		} `json:"block"`
+	} `json:"data"`
+}
