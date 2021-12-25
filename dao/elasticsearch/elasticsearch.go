@@ -10,7 +10,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/olivere/elastic/v7"
-	"github.com/spf13/viper"
 )
 var client *elastic.Client
 
@@ -20,8 +19,10 @@ func InitES()  {
 	//这个地方有个小坑 不加上elastic.SetSniff(false) 会连接不上
 	//Client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(host))
 	var err error
-	url := fmt.Sprintf("%s",viper.GetString("elasticsearch.host"))
+	//url := fmt.Sprintf("%s",viper.GetString("elasticsearch.host"))
+	url := "http://127.0.0.1:9200"
 	client,err  = elastic.NewClient(elastic.SetURL(url))
+
 	if err != nil {
 		fmt.Println(111,err)
 		return

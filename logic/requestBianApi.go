@@ -19,6 +19,19 @@ import (
 	"strings"
 )
 
+//Do 封装https 请求
+func Do(method string, url string, payload io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(method, url, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the auth for the request.
+	req.SetBasicAuth("admin", "Admin@123")
+
+	return http.DefaultClient.Do(req)
+}
+
 //GetTxListByAddress 通过合约或者钱包地址，返回交易列表
 func GetTxListByAddress(address string, apikey string, sort string, offset string, page string) []byte {
 	//校验参数
@@ -120,7 +133,7 @@ func GetDataByGraphQL(number int,db string)  {
 		fmt.Println(err1)
 		return 
 	}
-	fmt.Println("插入js成功")
+	fmt.Println("插入Es成功")
 
 	//client, err := elastic.NewClient(elastic.SetURL("http://10.10.10.8:9200"))
 	//if err != nil {
@@ -141,15 +154,22 @@ func GetDataByGraphQL(number int,db string)  {
 
 }
 
-//Do 封装https 请求
-func Do(method string, url string, payload io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest(method, url, payload)
+// GetDataByGraphServer 通过js访问前端服务https://wb.xfack.com/graphql
+func GetDataByGraphServer(query string) []byte{
+	//逻辑
+	url := "https://wb.xfack.com/graphql"
+	queryStr := query
+	fmt.Println(query)
+	payload := strings.NewReader(queryStr)
+
+	resp, err := Do("POST",url,payload)
+
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil
 	}
-
-	// Set the auth for the request.
-	req.SetBasicAuth("admin", "Admin@123")
-
-	return http.DefaultClient.Do(req)
+	body,_:=io.ReadAll(resp.Body)
+	//返回字符串
+	return  body
 }
+

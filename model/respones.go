@@ -102,3 +102,11 @@ type RespGraphData struct {
 		} `json:"block"`
 	} `json:"data"`
 }
+
+type RespBlockNumber struct {
+	Data struct {
+		Block struct {
+			Number int `json:"number"`
+		} `json:"block"`
+	} `json:"data"`
+}

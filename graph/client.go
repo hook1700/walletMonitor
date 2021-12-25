@@ -19,7 +19,6 @@ var QueryBlockNum struct {
 	Block struct {
 		Number graphql.Int
 	}
-
 }
 var QueryBlockNumData struct {
 	Block struct {
